@@ -1,0 +1,10 @@
+commands.txt
+Untitled.ipynb
+Untitled1.ipynb
+Untitled2.ipynb
+config.py
+config.py.bak
+tests.py
+__pycache__/
+.ipynb_checkpoints/
+.vscode/
