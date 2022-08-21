@@ -1,8 +1,4 @@
 from deep_translator import GoogleTranslator
-from yemek import fetch_meals
-
-
-
 
 def translate_meal_list(unique_meals):
     

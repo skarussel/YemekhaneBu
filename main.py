@@ -6,9 +6,9 @@ import pytz
 import os
 
 import telegram
-from yemek import fetch_meals
+from yemek import fetch_meals, fetch_ingredients
 from telegram import ForceReply, Update, InlineKeyboardMarkup,InlineKeyboardButton #upm package(python-telegram-bot)
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, ConversationHandler,CallbackQueryHandler  #upm package(python-telegram-bot)
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, ConversationHandler,CallbackQueryHandler, RegexHandler  #upm package(python-telegram-bot)
 import db
 import texts
 from translation import translate_meal_list
@@ -23,7 +23,7 @@ import time as t
 # translate to turkish
 
 
-users, meals,translated_meals = {},{},{}
+users, meals,translated_meals, ingredients = {},{},{},{}
 istanbul = pytz.timezone("Europe/Istanbul")
 admin = 0 
 OFFSET = 127462 - ord('A')
@@ -104,24 +104,33 @@ def meal_of_day(date,lang):
   ögle_meals = meals["Öğle Yemeği"].get(key)
   aksam_meals = meals["Akşam Yemeği"].get(key)
 
-  if (not ögle_meals or not aksam_meals):
-    return texts.food_not_available(lang,date,datetime.now(istanbul).date())
+  if (not ögle_meals and not aksam_meals):
+    return texts.food_not_available(lang,date,datetime.now(istanbul).date(), list(meals["Öğle Yemeği"].keys()))
   
 
-  if lang=="en":
-    ögle_meals = [x[0] for x in list(map(translated_meals.get, ögle_meals))]
-    aksam_meals = [x[0] for x in list(map(translated_meals.get, aksam_meals))]
-  elif lang=="de":
-    ögle_meals = [x[1] for x in list(map(translated_meals.get, ögle_meals))]
-    aksam_meals = [x[1] for x in list(map(translated_meals.get, aksam_meals))]
+  if lang!="tr":
+    l_idx = 0 if lang=="de" else 1
+    if (ögle_meals):
+          ögle_meals = [x[l_idx] for x in list(map(translated_meals.get, ögle_meals))]
+    if (aksam_meals):
+          aksam_meals = [x[l_idx] for x in list(map(translated_meals.get, aksam_meals))]
   
   formatted_date = texts.get_date_string(date.day,date.month,date.weekday(),lang)
-  text = f"*{formatted_date}*\n*{texts.mealtimes[lang][0]}*\n{ögle_meals[0]}\n{ögle_meals[1]}\n{ögle_meals[2]}\n{ögle_meals[3]}, "\
-  f"{ögle_meals[4]}\n{', '.join(ögle_meals[5:])}\n\n"\
-  f"*{texts.mealtimes[lang][1]}*\n{aksam_meals[0]}\n{aksam_meals[1]}\n{aksam_meals[2]}\n{aksam_meals[3]}, "\
+  text = f"*{formatted_date}*\n"
+  if (ögle_meals):
+    text = text + f"*{texts.mealtimes[lang][0]}*\n" \
+    f"{ögle_meals[0]}\n{ögle_meals[1]}\n{ögle_meals[2]}\n{ögle_meals[3]}, "\
+    f"{ögle_meals[4]}\n{', '.join(ögle_meals[5:])}\n\n"
+
+  if (aksam_meals):
+    text = text + f"*{texts.mealtimes[lang][1]}*\n{aksam_meals[0]}\n{aksam_meals[1]}\n{aksam_meals[2]}\n{aksam_meals[3]}, "\
   f"{aksam_meals[4]}\n{', '.join(aksam_meals[5:])}"
 
+
   return text
+
+def get_meal_index(meal):
+  return list(meals.keys()).index(meal)
 
 def button(update: Update, context: CallbackContext) -> None:
   query = update.callback_query
@@ -326,27 +335,99 @@ def forward_one(update: Update, context: CallbackContext):
   except:
     pass     
 
+def ingredients_of_a_meal(meal, lang):
+  l_idx = 0 if lang=="tr" else (1 if lang=="en" else 2)
+
+  kcal, raw_ingredients = ingredients[meal][l_idx]
+
+  if lang!="tr":
+    meal = translated_meals[meal][l_idx-1]
+  
+  htext = f"""
+  *{meal}*
+_{kcal}_\n
+{raw_ingredients}
+          """
+  return htext
+
+def get_meal(meal,lang):
+  if lang=="tr":
+    return meal 
+  l_idx = 0 if lang=="en" else 1 
+  return translated_meals[meal][l_idx]
+
+def select_ingredient(update: Update, context: CallbackContext):
+  if (context.args):
+    arg = context.args.replace("/",".")
+    try:
+      date = datetime.strptime(arg, "%d.%m.%Y").date()
+    except:
+      try:
+        date = datetime.strptime(arg, "%d.%m.").date()
+      except:
+          date = datetime.strptime(arg, "%d.%m").date()
+  else:
+    date = datetime.now(istanbul)
+  lang = users[update.message.from_user.id][0]
+  key = f"{date.day}.{date.month}"
+  lunch = meals["Öğle Yemeği"].get(key)
+  dinner = meals["Akşam Yemeği"].get(key)
+  #update.message.reply_text(f"{ingredients_of_a_meal(meal,lang)}", parse_mode="markdown")
+  meals_markup = []
+  row = []
+  for meal in lunch:
+    row.append(InlineKeyboardButton(f"{get_meal(meal,lang)}" , callback_data=meal))
+    if (len(row)==3):
+      meals_markup.append(row)
+      row=[]
+
+  meals_markup.append(row)
+  meals_markup.append([])
+  row = []
+
+  for meal in dinner:
+    row.append(InlineKeyboardButton(f"{get_meal(meal,lang)}" , callback_data=meal))
+    if (len(row)==3):
+      meals_markup.append(row)
+      row=[]
+  update.message.reply_text(f"Select a Meal from the List", parse_mode="markdown", reply_markup=InlineKeyboardMarkup(meals_markup))
+
+
+def send_ingredients(update: Update, context: CallbackContext):
+  print(update.message.sender_chat)
+  print(update.message.text)
+  print("test")
+  update.message.reply_text(update.message.text, parse_mode="markdown")
+  
+
 def morning(context: CallbackContext):
   
   today = datetime.now(istanbul)
   # get meals from yemek webpage
   meals = fetch_meals()
   if (meals):
+    # fetch ingredients
+    ingredients, new_ingredients = fetch_ingredients()
+    new_ingredients_dict = dict((k, ingredients[k]) for k in new_ingredients if k in ingredients)
+
     # update meals in db
     db.update_meals(meals)
     last_month_meals = db.read_meals(lastMonth(today))
     for key in meals.keys() and last_month_meals.keys():
       meals[key].update(last_month_meals[key])
+    
+    # update ingredients
+    db.update_ingredients(new_ingredients_dict)
 
   else:
     # if meals cant grabbed from webpage, get it from db (to be logged)
     meals = db.read_meals([lastMonth(today), today.month])
+    ingredients = db.read_ingredients()
   
   translated_meals = db.read_translations()
   translated_meals = translate_meals(meals,translated_meals)
   db.update_translations(translated_meals)
   
-    
   # send message to all users
   users_to_drop = []
   for id, val in users.items():
@@ -386,6 +467,9 @@ if __name__ == "__main__":
     meals = fetch_meals()
 
     if (meals):
+      ingredients, new_ingredients = fetch_ingredients()
+      new_ingredients_dict = dict((k, ingredients[k]) for k in new_ingredients if k in ingredients)
+
       # update meals in db
       db.update_meals(meals)
 
@@ -393,9 +477,14 @@ if __name__ == "__main__":
       last_month_meals = db.read_meals(lastMonth(datetime.now(istanbul)))
       for key in meals.keys() and last_month_meals.keys():
         meals[key].update(last_month_meals[key])
+      
+      db.update_ingredients(new_ingredients_dict)
+
+
     else:
       # if meals cant grabbed from webpage, get it from db (to be logged)
       meals = db.read_meals([lastMonth(datetime.now(istanbul)),datetime.now(istanbul).month])
+      ingredients = db.read_ingredients()
 
     translated_meals = db.read_translations()
     translated_meals = translate_meals(meals,translated_meals)
@@ -403,15 +492,24 @@ if __name__ == "__main__":
   
   else:
     # test environment
-    meals = db.read_meals([datetime.now(istanbul).month])
+    meals = fetch_meals()
+    db.update_meals(meals)
+    translated_meals = db.read_translations()
+    #translated_meals = translate_meals(meals,translated_meals)
+    #db.update_translations(translated_meals)
     if (not meals):
       meals = fetch_meals()
       db.update_meals(meals)
       translated_meals = db.read_translations()
       translated_meals = translate_meals(meals,translated_meals)
       db.update_translations(translated_meals)
-    else: 
-      translated_meals = db.read_translations() 
+      ingredients, new_ingredients = fetch_ingredients(ingredients)
+      new_ingredients_dict = dict((k, ingredients[k]) for k in new_ingredients if k in ingredients)
+      db.update_ingredients(new_ingredients_dict)
+ 
+    else:
+      #translated_meals = db.read_translations() 
+      ingredients = db.read_ingredients()
 
 
 
@@ -430,8 +528,10 @@ if __name__ == "__main__":
   dispatcher.add_handler(CommandHandler("auto", toggle_auto_msg))
   dispatcher.add_handler(CommandHandler("rate", rating))
   dispatcher.add_handler(CommandHandler("contact", feedback))
+  dispatcher.add_handler(CommandHandler("ingredients", select_ingredient, pass_args=True))
   dispatcher.add_handler(CommandHandler("all2705", forward_all))
   dispatcher.add_handler(CommandHandler("one2705", forward_one))
+  dispatcher.add_handler(MessageHandler(Filters.regex(r"^/[0-9]+"), send_ingredients))
   dispatcher.add_handler(MessageHandler(Filters.text, feedback_reply))
   updater.start_polling()
   jobs = updater.job_queue

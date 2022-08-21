@@ -134,6 +134,31 @@ def update_translations(translations):
 
     client.close()
 
+# ingredients
+
+def read_ingredients():
+    client = connect()
+    db = client.cluster0
+    entries = list(db.ingredients.find())
+    ingredients = {}
+    for e in entries:
+        ingredients[e['_id']]=[e['english'], e['german']]
+        
+    return ingredients
+
+def update_ingredients(ingredients):
+    client = connect()
+    db = client.cluster0
+    for meal,ingredients in ingredients.items():
+        db.ingredients.update_one({"_id": meal},
+                                    {"$set": {"english": ingredients[0], 
+                                    "german": ingredients[1]}}, 
+                                    upsert=True)
+
+    client.close()
+
+
+
 # feedback
 def insert_feedback(user, feedback):
     client = connect()

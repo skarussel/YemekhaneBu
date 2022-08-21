@@ -1,4 +1,5 @@
 from calendar import week
+import re 
 
 processing = {
       'en':
@@ -416,7 +417,19 @@ def get_date_string(day,month,weekday,lang):
 def get_weekday_shorts(lang):
       return weekday_shorts[lang]
 
-def food_not_available(lang, date, today):
+def food_not_available(lang, date, today, meal_keys):
+
+      date_pattern = re.compile(f"^[0-9]+\.{date.month}")
+      meals_in_same_month = [ s for s in meal_keys if date_pattern.match(s)]
+     
+      if (meals_in_same_month):
+            if (lang=="de"):
+                  return f"Es gibt kein Essen am {date.day} {get_month_name(date.month,lang)} {date.year} 😔"
+            elif (lang=="tr"):
+                  return f"{date.day} {get_month_name(date.month,lang)} {date.year} kantin yemek servisi yapmayacaktır 😔"
+            else: 
+                  return f"There is no meal at {date.day} {get_month_name(date.month,lang)} {date.year} 😔"
+
       
       if (date.date()<today):
             if (lang=="de"):
