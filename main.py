@@ -467,7 +467,7 @@ if __name__ == "__main__":
     meals = fetch_meals()
 
     if (meals):
-      ingredients, new_ingredients = fetch_ingredients()
+      ingredients, new_ingredients = fetch_ingredients(ingredients)
       new_ingredients_dict = dict((k, ingredients[k]) for k in new_ingredients if k in ingredients)
 
       # update meals in db
