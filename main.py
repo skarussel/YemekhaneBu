@@ -109,7 +109,7 @@ def meal_of_day(date,lang):
   
 
   if lang!="tr":
-    l_idx = 0 if lang=="de" else 1
+    l_idx = 0 if lang=="en" else 1
     if (ögle_meals):
           ögle_meals = [x[l_idx] for x in list(map(translated_meals.get, ögle_meals))]
     if (aksam_meals):
