@@ -425,11 +425,11 @@ def get_weekday_shorts(lang):
 
 def ingredients_not_availlable(lang, meal):
     if (lang == "de"):
-        return f"Die Zutaten für {meal} sind nicht verfügbar 😔"
+        return f"Die Zutaten für {meal} sind nicht verfügbar 😑"
     elif (lang == "tr"):
-        return f"{meal} için malzeme yok 😔"
+        return f"{meal} için malzeme yok 😑"
     else:
-        return f" There are no ingredients for {meal} available 😔"
+        return f" There are no ingredients for {meal} available 😑"
 
 
 def food_not_available(lang, date, today, meal_keys):
