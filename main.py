@@ -120,6 +120,9 @@ def meal_of_day(date, lang, u_id):
         if (raw_aksam_meals):
             aksam_meals = [x[l_idx] for x in list(
                 map(translated_meals.get, raw_aksam_meals))]
+    else:
+        ögle_meals = raw_ögle_meals
+        aksam_meals = raw_aksam_meals
 
     formatted_date = texts.get_date_string(
         date.day, date.month, date.weekday(), lang)

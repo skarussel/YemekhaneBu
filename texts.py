@@ -330,7 +330,8 @@ Ihr habt wie folgt abgestimmt:
 ☹️ p1% 
 
 Folgende Features sind geplant 📝 
-- Zutaten der Gerichte  
+- Tutorial: How to Top-Up Bu Card  
+- Preise
 
 Der Bot wurde im März 2022 von Steven Kocadag entwickelt 👨🏻‍💻 Wenn du Lust hast mitzuwirken, schick mir über /contact eine kurze Nachricht 😊💪🏻
 """,
@@ -345,7 +346,8 @@ You voted as follows:
 ☹️ p1% 
 
 The following features are planned 📝 
-- Ingredients of the dishes 
+- Tutorial: How to Top-Up Bu Card
+- Prices
 
 The bot was developed by Steven Kocadag during Spring 2022 👨🏻‍💻 If you want to contribute, send me a short message via /contact 😊💪🏻
 """,
@@ -359,7 +361,8 @@ Aşağıdaki şekilde oy verdiniz:
 ☹️ p1%
 
 Aşağıdaki özellikler planlanmıştır 📝
-- Yemeklerin malzemeleri
+- Öğretici: Bu Kart Nasıl Doldurulur
+- Gıda fiyatları
 
 Bot, Steven Kocadağ tarafından Mart 2022'de geliştirildi 👨🏻‍💻 Katkıda bulunmak isterseniz /iletişim yoluyla bana kısa bir mesaj gönderin 😊💪🏻
 """
