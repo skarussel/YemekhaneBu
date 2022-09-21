@@ -403,6 +403,8 @@ def ingredients_of_a_meal(meal, lang):
     l_idx = 0 if lang == "tr" else (1 if lang == "en" else 2)
     if lang != "tr":
         translated_meal = translated_meals[meal][l_idx-1]
+    else:
+        translated_meal = meal 
     if (not meal in ingredients.keys()):
         return texts.ingredients_not_availlable(lang, translated_meal)
     kcal, raw_ingredients = ingredients[meal][l_idx]
