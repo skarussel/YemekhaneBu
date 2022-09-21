@@ -483,7 +483,7 @@ def morning(context: CallbackContext):
     meals = fetch_meals()
     if (meals):
         # fetch ingredients
-        ingredients, new_ingredients = fetch_ingredients()
+        ingredients, new_ingredients = fetch_ingredients(ingredients)
         new_ingredients_dict = dict(
             (k, ingredients[k]) for k in new_ingredients if k in ingredients)
 

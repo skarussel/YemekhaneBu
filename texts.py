@@ -353,7 +353,7 @@ The bot was developed by Steven Kocadag during Spring 2022 👨🏻‍💻 If yo
 """,
     "tr":
     """
-Şu anda num_user kullanıcısıyız 🙌🏻😍 Orada olduğunuz için teşekkürler ☺️
+Şu anda num_user kullanıcıyız 🙌🏻😍 Burada olduğunuz için teşekkürler ☺️
 
 Aşağıdaki şekilde oy verdiniz:
 ❤️ p3%
