@@ -56,7 +56,9 @@ def start(update: Update, context: CallbackContext) -> None:
     reply_markup = InlineKeyboardMarkup(lang_keyboard)
     update.message.reply_text(texts.start_conv.replace(
         '/name', update.message.from_user.first_name))
-    db.update_user(update.message.from_user.id)
+    uid = update.message.from_user.id
+    users[uid] = ("en",1,0) 
+    db.update_user(uid)
     t.sleep(1)
     update.message.reply_text(texts.ask_for_language,
                               reply_markup=reply_markup)
