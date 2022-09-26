@@ -56,6 +56,7 @@ def start(update: Update, context: CallbackContext) -> None:
     reply_markup = InlineKeyboardMarkup(lang_keyboard)
     update.message.reply_text(texts.start_conv.replace(
         '/name', update.message.from_user.first_name))
+    db.update_user(update.message.from_user.id)
     t.sleep(1)
     update.message.reply_text(texts.ask_for_language,
                               reply_markup=reply_markup)
@@ -139,7 +140,7 @@ def meal_of_day(date, lang, u_id):
             text = text + f"/{counter} {m}, "
             counter += 1
 
-        text = text[:-1] + "\n"
+        text = text[:-2] + "\n"
 
         for m in ögle_meals[5:]:
             text = text + f"/{counter} {m}, "
@@ -157,7 +158,7 @@ def meal_of_day(date, lang, u_id):
             text = text + f"/{counter} {m}, "
             counter += 1
 
-        text = text[:-1] + "\n"
+        text = text[:-2] + "\n"
 
         for m in aksam_meals[5:]:
             text = text + f"/{counter} {m}, "
@@ -479,11 +480,12 @@ def send_ingredients(update: Update, context: CallbackContext):
 
 
 def morning(context: CallbackContext):
-
     today = datetime.now(istanbul)
     # get meals from yemek webpage
     meals = fetch_meals()
     if (meals):
+
+        ingredients = db.read_ingredients()
         # fetch ingredients
         ingredients, new_ingredients = fetch_ingredients(ingredients)
         new_ingredients_dict = dict(
@@ -598,6 +600,7 @@ if __name__ == "__main__":
             translated_meals = db.read_translations()
             ingredients = db.read_ingredients()
 
+    
     updater = Updater(token)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler("start", start))
@@ -623,4 +626,4 @@ if __name__ == "__main__":
     updater.start_polling()
     jobs = updater.job_queue
     job_daily = jobs.run_daily(morning, days=(
-        0, 1, 2, 3, 4, 5, 6), time=time(7, 59, 00, tzinfo=istanbul))
+        0, 1, 2, 3, 4, 5, 6), time=time(15, 59, 00, tzinfo=istanbul))
