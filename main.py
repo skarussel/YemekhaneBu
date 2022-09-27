@@ -628,4 +628,4 @@ if __name__ == "__main__":
     updater.start_polling()
     jobs = updater.job_queue
     job_daily = jobs.run_daily(morning, days=(
-        0, 1, 2, 3, 4, 5, 6), time=time(15, 59, 00, tzinfo=istanbul))
+        0, 1, 2, 3, 4, 5, 6), time=time(7, 59, 00, tzinfo=istanbul))
