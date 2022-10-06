@@ -44,7 +44,6 @@ locations = {"Kuzey (North)": (41.086696336374395, 29.0451391825363),
              "Sarıtepe": (41.24602520569113, 29.01246661875565)
              }
 
-
 def help(update: Update, context: CallbackContext) -> None:
 
     update.message.reply_text(
@@ -56,9 +55,6 @@ def start(update: Update, context: CallbackContext) -> None:
     reply_markup = InlineKeyboardMarkup(lang_keyboard)
     update.message.reply_text(texts.start_conv.replace(
         '/name', update.message.from_user.first_name))
-    uid = update.message.from_user.id
-    users[uid] = ("en",1,0) 
-    db.update_user(uid)
     t.sleep(1)
     update.message.reply_text(texts.ask_for_language,
                               reply_markup=reply_markup)
