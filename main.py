@@ -183,11 +183,12 @@ def button(update: Update, context: CallbackContext) -> None:
             query.edit_message_text(
                 text=texts.update[lang], parse_mode='markdown')
             values = list(users[user_id])
-            values[0] = query.data
+            values[0] = lang
             users[user_id] = tuple(values)
+            auto = values[1]
             rating = values[2]
             finish_text = texts.language_change[lang]+" /help"
-            db.update_user(user_id, lang, rating)
+            db.update_user(user_id, lang, auto, rating)
             query.edit_message_text(text=finish_text, parse_mode='markdown')
 
         else:
