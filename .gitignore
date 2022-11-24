@@ -6,6 +6,9 @@ Untitled3.ipynb
 config.py
 config.py.bak
 tests.py
+.dockerignore
+Dockerfile
+fly.toml
 __pycache__/
 .ipynb_checkpoints/
 .vscode/

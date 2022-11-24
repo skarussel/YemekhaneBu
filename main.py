@@ -1,22 +1,17 @@
 import os
 from datetime import datetime, timedelta, timezone, time
 from collections import Counter
-from importlib_metadata import entry_points
 import pytz
-import os
 import itertools
 import telegram
 from yemek import fetch_meals, fetch_ingredients
 from telegram import ForceReply, Update, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, ConversationHandler, CallbackQueryHandler, RegexHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, CallbackQueryHandler
 import db
 import texts
 from translation import translate_meal_list
-from tabulate import tabulate
-from dateutil.parser import parse
-from dates import get_days_of_week, get_next_days, is_date
+from dates import is_date
 import tgcalendar
-import os
 import time as t
 
 
@@ -508,6 +503,9 @@ def morning(context: CallbackContext):
     translated_meals = translate_meals(meals, translated_meals)
     db.update_translations(translated_meals)
 
+    memory_usage = dict.fromkeys([item for item in dir() if not item.startswith("__")],0)
+    #print_memory(memory_usage)
+
     # send message to all users
     users_to_drop = []
     for id, val in users.items():
@@ -524,11 +522,27 @@ def morning(context: CallbackContext):
     for id in users_to_drop:
         del users[id]
         db.delete_user(id)
+    
+"""
+
+def print_memory(memory_usage):
+    for var in memory_usage.keys():
+        memory_usage[var] = asizeof.asizeof(var)
+
+    memory_usage = sorted(memory_usage.items(), key=lambda x:x[1],reverse=True)
+    num_items = 20
+    for var, bytes in memory_usage:
+        print(f"{var} {bytes/1000}")
+        num_items-=1
+        if num_items==0:
+            break
+"""
+
 
 
 if __name__ == "__main__":
 
-    is_prod = os.environ.get('IS_HEROKU', None)
+    is_prod = os.environ.get('IS_FLY', None)
 
     if is_prod:
         # here goes all your heroku config
@@ -556,8 +570,9 @@ if __name__ == "__main__":
 
             # get meals from last month
             last_month_meals = db.read_meals(lastMonth(datetime.now(istanbul)))
-            for key in meals.keys() and last_month_meals.keys():
-                meals[key].update(last_month_meals[key])
+            if (last_month_meals):
+                for key in meals.keys() and last_month_meals.keys():
+                    meals[key].update(last_month_meals[key])
 
             db.update_ingredients(new_ingredients_dict)
 
@@ -599,6 +614,10 @@ if __name__ == "__main__":
             translated_meals = db.read_translations()
             ingredients = db.read_ingredients()
 
+    if 'new_ingredients' in locals():
+        del new_ingredients
+    if 'new_ingredients_dict' in locals():
+        del new_ingredients_dict
     
     updater = Updater(token)
     dispatcher = updater.dispatcher
@@ -626,3 +645,5 @@ if __name__ == "__main__":
     jobs = updater.job_queue
     job_daily = jobs.run_daily(morning, days=(
         0, 1, 2, 3, 4, 5, 6), time=time(7, 59, 00, tzinfo=istanbul))
+    #memory_usage = dict.fromkeys([item for item in dir() if not item.startswith("__")],0)
+    #print_memory(memory_usage)

@@ -1,12 +1,11 @@
-from gettext import translation
 import pymongo
 import re
 import os
 
 collections = ['users', 'ögle', 'aksam', 'translations']
 
-is_prod = os.environ.get('IS_HEROKU', None)
-
+is_prod = os.environ.get('IS_FLY', None)
+print(f"IS_PROD: {is_prod}")
 
 if is_prod:
     username = os.environ['username']
