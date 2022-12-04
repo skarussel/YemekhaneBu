@@ -329,10 +329,6 @@ Ihr habt wie folgt abgestimmt:
 🙂 p2% 
 ☹️ p1% 
 
-Folgende Features sind geplant 📝 
-- Tutorial: How to Top-Up Bu Card  
-- Preise
-
 Der Bot wurde im März 2022 von Steven Kocadag entwickelt 👨🏻‍💻 Wenn du Lust hast mitzuwirken, schick mir über /contact eine kurze Nachricht 😊💪🏻
 """,
 
@@ -345,10 +341,6 @@ You voted as follows:
 🙂 p2% 
 ☹️ p1% 
 
-The following features are planned 📝 
-- Tutorial: How to Top-Up Bu Card
-- Prices
-
 The bot was developed by Steven Kocadag during Spring 2022 👨🏻‍💻 If you want to contribute, send me a short message via /contact 😊💪🏻
 """,
     "tr":
@@ -359,10 +351,6 @@ Aşağıdaki şekilde oy verdiniz:
 ❤️ p3%
 🙂 p2%
 ☹️ p1%
-
-Aşağıdaki özellikler planlanmıştır 📝
-- Öğretici: Bu Kart Nasıl Doldurulur
-- Gıda fiyatları
 
 Bot, Steven Kocadağ tarafından Mart 2022'de geliştirildi 👨🏻‍💻 Katkıda bulunmak isterseniz /iletişim yoluyla bana kısa bir mesaj gönderin 😊💪🏻
 """
@@ -379,6 +367,7 @@ weekday_end = {
 def get_info(lang, num_of_users, probs):
     text = info[lang]
     text = text.replace("num_user", str(num_of_users))
+    probs = [round(x,2) for x in probs]
     p1, p2, p3 = probs
     text = text.replace("p1", str(int(p1*100)))
     text = text.replace("p2", str(int(p2*100)))
