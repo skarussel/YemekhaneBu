@@ -402,7 +402,7 @@ def ingredients_of_a_meal(meal, lang):
         translated_meal = meal 
     if (not meal in ingredients.keys()):
         return texts.ingredients_not_availlable(lang, translated_meal)
-    kcal, raw_ingredients = ingredients[meal][l_idx]
+    kcal, raw_ingredients = ingredients[meal][l_idx-1]
 
     htext = f"""
   *{translated_meal}*
